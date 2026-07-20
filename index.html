@@ -4,25 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendário de Parede - Mockup Interativo</title>
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Container principal da aplicação -->
-    <div id="app-container">
-        <!-- Container do viewer (área de visualização) -->
-        <div id="viewer-container">
-            <!-- A folha base e macetes serão inseridos aqui pelo JavaScript -->
-        </div>
-        
-        <!-- Container da UI (painel de controle) -->
-        <div id="ui-container">
-            <!-- Os controles serão inseridos aqui pelo JavaScript -->
-        </div>
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">A carregar...</div>
     </div>
 
-    <!-- JavaScript -->
+    <div id="app-container" style="display:none">
+        <div id="viewer-container"></div>
+        <div id="ui-container"></div>
+    </div>
+
     <script src="js/config.js"></script>
     <script src="js/macete.js"></script>
     <script src="js/viewer.js"></script>

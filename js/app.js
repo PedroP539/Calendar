@@ -16,6 +16,8 @@ class CalendarApp {
         try {
             this.config = CONFIG;
 
+            await this.preloadBackgrounds();
+
             this.viewer = new Viewer(this.config);
             this.viewer.inicializar('viewer-container');
 
@@ -35,12 +37,28 @@ class CalendarApp {
             });
 
             this.configurarAtalhos();
+
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('app-container').style.display = '';
+
             console.log('Aplicação inicializada com sucesso!');
 
         } catch (erro) {
             console.error('Erro ao inicializar aplicação:', erro);
             this.mostrarErro(erro);
         }
+    }
+
+    async preloadBackgrounds() {
+        const promises = this.config.calendarios.map(cal => {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = resolve;
+                img.src = cal.assets.folhaBase;
+            });
+        });
+        await Promise.all(promises);
     }
 
     async criarMacetes(assets) {
