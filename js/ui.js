@@ -58,26 +58,6 @@ class UI {
 
         container.appendChild(botoes);
 
-        // Add button to upload custom base image for current calendar
-        const btnUploadBase = document.createElement('button');
-        btnUploadBase.className = 'btn-upload-base';
-        btnUploadBase.textContent = 'Carregar Base Personalizada';
-        btnUploadBase.onclick = () => {
-            this.carregarImagemBase();
-        };
-        container.appendChild(btnUploadBase);
-
-        // Hidden file input for base image upload
-        const inputBase = document.createElement('input');
-        inputBase.type = 'file';
-        inputBase.accept = 'image/*';
-        inputBase.id = 'input-base';
-        inputBase.style.display = 'none';
-        inputBase.onchange = (e) => {
-            this.processarImagemBase(e.target.files[0]);
-        };
-        container.appendChild(inputBase);
-
         this.painel.appendChild(container);
     }
 
@@ -393,57 +373,6 @@ class UI {
         reader.readAsDataURL(ficheiro);
     }
 
-    /**
-     * Abre o diálogo para carregar imagem base personalizada
-     */
-    carregarImagemBase() {
-        const inputBase = document.getElementById('input-base');
-        if (inputBase) {
-            inputBase.click();
-        }
-    }
-
-    /**
-     * Processa a imagem base carregada
-     */
-    processarImagemBase(ficheiro) {
-        if (!ficheiro) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const dataUrl = e.target.result;
-            this.viewer.atualizarImagemFundo(dataUrl);
-
-            // Guardar imagem base no calendário atual
-            this.config.calendarios[this.app.calendarioAtual].assets.folhaBase = dataUrl;
-
-            // Atualizar botão para mostrar que foi carregada
-            const btnUploadBase = document.querySelector('.btn-upload-base');
-            if (btnUploadBase) {
-                btnUploadBase.textContent = 'Base Personalizada ✓';
-                btnUploadBase.classList.add('ativo');
-            }
-        };
-        reader.readAsDataURL(ficheiro);
-    }
-
-    /**
-     * Atualiza o estado do botão de base personalizada ao mudar de calendário
-     */
-    atualizarBotaoBasePersonalizada() {
-        const btnUploadBase = document.querySelector('.btn-upload-base');
-        if (btnUploadBase) {
-            const currentBase = this.config.calendarios[this.app.calendarioAtual].assets.folhaBase;
-            // Check if it's a data URL (custom uploaded) or a file path
-            if (currentBase.startsWith('data:')) {
-                btnUploadBase.textContent = 'Base Personalizada ✓';
-                btnUploadBase.classList.add('ativo');
-            } else {
-                btnUploadBase.textContent = 'Carregar Base Personalizada';
-                btnUploadBase.classList.remove('ativo');
-            }
-        }
-    }
 }
 
 // Exportar para uso em outros módulos

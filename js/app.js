@@ -68,7 +68,6 @@ class CalendarApp {
             this.viewer.setCalendarioAtivo(index);
             await Promise.all(this.macetes.map(m => m.recarregarImagens(assets.macetes)));
             this.ui.atualizarTodos();
-            this.ui.atualizarBotaoBasePersonalizada();
         } catch (error) {
             console.error('Erro ao carregar calendário:', error);
         } finally {
