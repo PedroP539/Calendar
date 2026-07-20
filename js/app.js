@@ -16,14 +16,10 @@ class CalendarApp {
         try {
             this.config = CONFIG;
 
-            await this.preloadBackgrounds();
-
             this.viewer = new Viewer(this.config);
             this.viewer.inicializar('viewer-container');
 
-            const assets = this.config.calendarios[0].assets;
-            this.viewer.atualizarImagemFundo(assets.folhaBase);
-            await this.criarMacetes(assets);
+            await this.criarMacetes(this.config.calendarios[0].assets);
 
             this.ui = new UI(this.config, this.macetes, this.viewer, this);
             this.ui.inicializar('ui-container');
@@ -48,18 +44,6 @@ class CalendarApp {
         }
     }
 
-    async preloadBackgrounds() {
-        const promises = this.config.calendarios.map(cal => {
-            return new Promise(resolve => {
-                const img = new Image();
-                img.onload = resolve;
-                img.onerror = resolve;
-                img.src = cal.assets.folhaBase;
-            });
-        });
-        await Promise.all(promises);
-    }
-
     async criarMacetes(assets) {
         for (let i = 0; i < 3; i++) {
             const macete = new Macete(i + 1, this.config.zonas[i], this.config);
@@ -71,7 +55,6 @@ class CalendarApp {
     async alternarCalendario(index) {
         if (index === this.calendarioAtual || !this.config.calendarios[index]) return;
 
-        // Show loading state
         const viewerContainer = document.getElementById('viewer-container');
         const loadingOverlay = document.createElement('div');
         loadingOverlay.className = 'loading-overlay';
@@ -82,18 +65,13 @@ class CalendarApp {
         const assets = this.config.calendarios[index].assets;
 
         try {
-            // First update the base image
-            this.viewer.atualizarImagemFundo(assets.folhaBase);
-            
-            // Then reload all macetes
+            this.viewer.setCalendarioAtivo(index);
             await Promise.all(this.macetes.map(m => m.recarregarImagens(assets.macetes)));
-            
             this.ui.atualizarTodos();
             this.ui.atualizarBotaoBasePersonalizada();
         } catch (error) {
             console.error('Erro ao carregar calendário:', error);
         } finally {
-            // Remove loading overlay if it still exists
             if (viewerContainer.contains(loadingOverlay)) {
                 viewerContainer.removeChild(loadingOverlay);
             }

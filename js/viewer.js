@@ -29,6 +29,7 @@ class Viewer {
         this.furo = null;
         this.grelha = null;
         this.imagemFundo = null;
+        this.imagemFundo2 = null;
     }
 
     /**
@@ -96,30 +97,35 @@ class Viewer {
         folha.style.transition = 'transform 0.1s ease-out';
         folha.style.transformStyle = 'preserve-3d';
         
-        // Imagem de fundo (folha base) - condicional
+        // Imagem de fundo (folha base) - ambas carregadas desde o início
         if (this.config.assets.mostrarFolhaBase) {
-            const imgFundo = document.createElement('img');
-            imgFundo.className = 'folha-imagem';
-            imgFundo.src = this.config.assets.folhaBase;
-            imgFundo.style.width = '100%';
-            imgFundo.style.height = '100%';
-            imgFundo.style.objectFit = 'contain';
-            imgFundo.style.position = 'absolute';
-            imgFundo.style.top = '0';
-            imgFundo.style.left = '0';
-            imgFundo.id = 'folha-imagem-fundo';
-            
-            // Fallback se a imagem não carregar
-            imgFundo.onerror = () => {
-                console.warn('Imagem de fundo não encontrada, usando fundo branco');
-                imgFundo.style.display = 'none';
+            const criarImg = (src, visivel) => {
+                const img = document.createElement('img');
+                img.className = 'folha-imagem';
+                img.src = src;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.style.position = 'absolute';
+                img.style.top = '0';
+                img.style.left = '0';
+                img.style.display = visivel ? 'block' : 'none';
+                img.id = visivel ? 'folha-imagem-fundo' : 'folha-imagem-fundo2';
+
+                img.onerror = () => {
+                    console.warn('Imagem de fundo não encontrada:', src);
+                    img.style.display = 'none';
+                };
+
+                folha.appendChild(img);
+                return img;
             };
-            
-            folha.appendChild(imgFundo);
-            this.imagemFundo = imgFundo;
+
+            this.imagemFundo = criarImg(this.config.calendarios[0].assets.folhaBase, true);
+            this.imagemFundo2 = criarImg(this.config.calendarios[1].assets.folhaBase, false);
         } else {
-            // Criar elemento vazio para imagem de fundo (será preenchido pelo utilizador)
             this.imagemFundo = null;
+            this.imagemFundo2 = null;
         }
         
         this.container.appendChild(folha);
@@ -364,32 +370,43 @@ class Viewer {
      * Alterna a visibilidade da imagem de fundo
      */
     alternarImagemFundo() {
-        if (this.imagemFundo) {
-            const visivel = this.imagemFundo.style.display !== 'none';
-            this.imagemFundo.style.display = visivel ? 'none' : 'block';
-            return !visivel;
-        }
-        return false;
+        const visivel = this.imagemFundo && this.imagemFundo.style.display !== 'none';
+        if (this.imagemFundo) this.imagemFundo.style.display = visivel ? 'none' : 'block';
+        if (this.imagemFundo2) this.imagemFundo2.style.display = visivel ? 'none' : 'block';
+        return !visivel;
     }
 
     /**
      * Define a visibilidade da imagem de fundo
      */
     setImagemFundoVisivel(visivel) {
-        if (this.imagemFundo) {
-            this.imagemFundo.style.display = visivel ? 'block' : 'none';
-        }
+        const mostrar = visivel ? 'block' : 'none';
+        if (this.imagemFundo) this.imagemFundo.style.display = mostrar;
+        if (this.imagemFundo2) this.imagemFundo2.style.display = mostrar;
     }
 
     /**
-     * Atualiza a imagem de fundo com um novo caminho
+     * Define qual calendário está ativo (mostra a imagem certa)
+     */
+    setCalendarioAtivo(index) {
+        if (!this.imagemFundo || !this.imagemFundo2) return;
+        this.imagemFundo.style.display = index === 0 ? 'block' : 'none';
+        this.imagemFundo2.style.display = index === 1 ? 'block' : 'none';
+    }
+
+    /**
+     * Atualiza a imagem de fundo do calendário atual (upload personalizado)
      */
     atualizarImagemFundo(novaSrc) {
-        if (this.imagemFundo) {
+        const img = this.imagemFundo && this.imagemFundo.style.display !== 'none'
+            ? this.imagemFundo : this.imagemFundo2;
+        if (img) {
+            img.src = novaSrc;
+            img.style.display = 'block';
+        } else if (this.imagemFundo) {
             this.imagemFundo.src = novaSrc;
             this.imagemFundo.style.display = 'block';
         } else {
-            // Se não existe, cria a imagem de fundo
             const imgFundo = document.createElement('img');
             imgFundo.className = 'folha-imagem';
             imgFundo.src = novaSrc;
@@ -400,7 +417,6 @@ class Viewer {
             imgFundo.style.top = '0';
             imgFundo.style.left = '0';
             imgFundo.id = 'folha-imagem-fundo';
-            
             this.folha.insertBefore(imgFundo, this.folha.firstChild);
             this.imagemFundo = imgFundo;
         }
