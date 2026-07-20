@@ -153,7 +153,7 @@ const CONFIG = {
         {
             nome: 'Calendário 2',
             assets: {
-                folhaBase: 'assets/folha_base2.png',
+                folhaBase: 'assets/folha_base_calendario2.png',
                 macetes: ['assets/calendario2/macete1', 'assets/calendario2/macete2', 'assets/calendario2/macete3']
             }
         }

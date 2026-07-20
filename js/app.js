@@ -53,13 +53,34 @@ class CalendarApp {
 
     async alternarCalendario(index) {
         if (index === this.calendarioAtual || !this.config.calendarios[index]) return;
+
+        // Show loading state
+        const viewerContainer = document.getElementById('viewer-container');
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">A carregar calendário...</div>';
+        viewerContainer.appendChild(loadingOverlay);
+
         this.calendarioAtual = index;
         const assets = this.config.calendarios[index].assets;
 
-        await Promise.all(this.macetes.map(m => m.recarregarImagens(assets.macetes)));
-
-        this.viewer.atualizarImagemFundo(assets.folhaBase);
-        this.ui.atualizarTodos();
+        try {
+            // First update the base image
+            this.viewer.atualizarImagemFundo(assets.folhaBase);
+            
+            // Then reload all macetes
+            await Promise.all(this.macetes.map(m => m.recarregarImagens(assets.macetes)));
+            
+            this.ui.atualizarTodos();
+            this.ui.atualizarBotaoBasePersonalizada();
+        } catch (error) {
+            console.error('Erro ao carregar calendário:', error);
+        } finally {
+            // Remove loading overlay if it still exists
+            if (viewerContainer.contains(loadingOverlay)) {
+                viewerContainer.removeChild(loadingOverlay);
+            }
+        }
     }
 
     /**
