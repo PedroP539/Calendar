@@ -39,7 +39,6 @@ class CalendarApp {
             this.configurarAtalhos();
 
             document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('app-container').style.display = '';
 
             console.log('Aplicação inicializada com sucesso!');
 
