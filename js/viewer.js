@@ -29,7 +29,7 @@ class Viewer {
         this.furo = null;
         this.grelha = null;
         this.imagemFundo = null;
-        this.imagemFundo2 = null;
+        this.calendarioAtivo = 0;
     }
 
     /**
@@ -97,35 +97,28 @@ class Viewer {
         folha.style.transition = 'transform 0.1s ease-out';
         folha.style.transformStyle = 'preserve-3d';
         
-        // Imagem de fundo (folha base) - ambas carregadas desde o início
+        // Imagem de fundo (folha base)
         if (this.config.assets.mostrarFolhaBase) {
-            const criarImg = (src, visivel) => {
-                const img = document.createElement('img');
-                img.className = 'folha-imagem';
-                img.src = src;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'contain';
-                img.style.position = 'absolute';
-                img.style.top = '0';
-                img.style.left = '0';
-                img.style.display = visivel ? 'block' : 'none';
-                img.id = visivel ? 'folha-imagem-fundo' : 'folha-imagem-fundo2';
+            this.imagemFundo = document.createElement('img');
+            this.imagemFundo.className = 'folha-imagem';
+            this.imagemFundo.id = 'folha-imagem-fundo';
+            this.imagemFundo.src = this.config.calendarios[0].assets.folhaBase;
+            this.imagemFundo.style.width = '100%';
+            this.imagemFundo.style.height = '100%';
+            this.imagemFundo.style.objectFit = 'contain';
+            this.imagemFundo.style.position = 'absolute';
+            this.imagemFundo.style.top = '0';
+            this.imagemFundo.style.left = '0';
+            this.imagemFundo.style.zIndex = '0';
 
-                img.onerror = () => {
-                    console.warn('Imagem de fundo não encontrada:', src);
-                    img.style.display = 'none';
-                };
-
-                folha.appendChild(img);
-                return img;
+            this.imagemFundo.onerror = () => {
+                console.warn('Imagem de fundo não encontrada:', this.imagemFundo.src);
+                this.imagemFundo.style.display = 'none';
             };
 
-            this.imagemFundo = criarImg(this.config.calendarios[0].assets.folhaBase, true);
-            this.imagemFundo2 = criarImg(this.config.calendarios[1].assets.folhaBase, false);
+            folha.appendChild(this.imagemFundo);
         } else {
             this.imagemFundo = null;
-            this.imagemFundo2 = null;
         }
         
         this.container.appendChild(folha);
@@ -372,7 +365,6 @@ class Viewer {
     alternarImagemFundo() {
         const visivel = this.imagemFundo && this.imagemFundo.style.display !== 'none';
         if (this.imagemFundo) this.imagemFundo.style.display = visivel ? 'none' : 'block';
-        if (this.imagemFundo2) this.imagemFundo2.style.display = visivel ? 'none' : 'block';
         return !visivel;
     }
 
@@ -380,30 +372,24 @@ class Viewer {
      * Define a visibilidade da imagem de fundo
      */
     setImagemFundoVisivel(visivel) {
-        const mostrar = visivel ? 'block' : 'none';
-        if (this.imagemFundo) this.imagemFundo.style.display = mostrar;
-        if (this.imagemFundo2) this.imagemFundo2.style.display = mostrar;
+        if (this.imagemFundo) this.imagemFundo.style.display = visivel ? 'block' : 'none';
     }
 
     /**
      * Define qual calendário está ativo (mostra a imagem certa)
      */
     setCalendarioAtivo(index) {
-        if (!this.imagemFundo || !this.imagemFundo2) return;
-        this.imagemFundo.style.display = index === 0 ? 'block' : 'none';
-        this.imagemFundo2.style.display = index === 1 ? 'block' : 'none';
+        if (!this.imagemFundo) return;
+        if (index === this.calendarioAtivo) return;
+        this.calendarioAtivo = index;
+        this.imagemFundo.src = this.config.calendarios[index].assets.folhaBase;
     }
 
     /**
      * Atualiza a imagem de fundo do calendário atual (upload personalizado)
      */
     atualizarImagemFundo(novaSrc) {
-        const img = this.imagemFundo && this.imagemFundo.style.display !== 'none'
-            ? this.imagemFundo : this.imagemFundo2;
-        if (img) {
-            img.src = novaSrc;
-            img.style.display = 'block';
-        } else if (this.imagemFundo) {
+        if (this.imagemFundo) {
             this.imagemFundo.src = novaSrc;
             this.imagemFundo.style.display = 'block';
         } else {

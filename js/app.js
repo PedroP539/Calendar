@@ -34,13 +34,13 @@ class CalendarApp {
 
             this.configurarAtalhos();
 
-            document.getElementById('loading-screen').classList.add('hidden');
-
             console.log('Aplicação inicializada com sucesso!');
 
         } catch (erro) {
             console.error('Erro ao inicializar aplicação:', erro);
             this.mostrarErro(erro);
+        } finally {
+            document.getElementById('loading-screen').classList.add('hidden');
         }
     }
 
