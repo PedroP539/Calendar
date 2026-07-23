@@ -55,7 +55,6 @@ class ViewerTriangle {
     }
 
     criarCena() {
-        // Container 3D
         this.scene = document.createElement('div');
         this.scene.className = 'tri-scene';
         this.scene.style.cssText = `
@@ -66,7 +65,6 @@ class ViewerTriangle {
         `;
         this.container.appendChild(this.scene);
 
-        // Wrapper 3D que vai ser rodado
         const wrapper = document.createElement('div');
         wrapper.className = 'tri-wrapper';
         wrapper.id = 'tri-wrapper';
@@ -80,13 +78,14 @@ class ViewerTriangle {
         this.scene.appendChild(wrapper);
         this.wrapper = wrapper;
 
-        // Dimensões base (escala para caber no ecrã)
-        const baseW = this.config.folha.largura;     // 215mm
+        // Dimensões reais do config
+        const baseW = this.config.folha.largura;           // 215mm
         const faceH = this.config.triangular.segmentos[0].altura; // 127.5mm
-        const folhaH = this.config.triangular.folha.altura; // 105mm
-        const S = 1.8; // scale factor para visualização
+        const folhaW = this.config.triangular.folha.largura; // 215mm
+        const folhaH = this.config.triangular.folha.altura;  // 105mm
+        const S = 1.7; // escala
 
-        // ── FACE FRENTE (triângulo, lado visível) ──
+        // ── FACE FRENTE ──
         const faceFront = document.createElement('div');
         faceFront.className = 'tri-face-front';
         faceFront.id = 'tri-face-front';
@@ -95,73 +94,74 @@ class ViewerTriangle {
             width: ${baseW * S}px;
             height: ${faceH * S}px;
             transform-origin: top center;
-            background: #d8d8d0;
+            transform: rotateX(5deg);
+            background: linear-gradient(160deg, #e0e0d8, #d0d0c8);
             border: 1px solid #bbb;
             clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
             display: flex; align-items: flex-start; justify-content: center;
             overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         `;
         wrapper.appendChild(faceFront);
         this.faceFront = faceFront;
 
-        // ── FACE VERSO (triângulo, lado direito em perspectiva) ──
+        // ── FACE VERSO (por trás, ligeiramente deslocada) ──
         const faceBack = document.createElement('div');
         faceBack.className = 'tri-face-back';
         faceBack.id = 'tri-face-back';
-        const profundidade = faceH * S * 0.5; // profundidade do triângulo
         faceBack.style.cssText = `
             position: absolute;
             width: ${baseW * S}px;
             height: ${faceH * S}px;
             transform-origin: top center;
-            background: #c8c8c0;
+            transform: rotateX(-15deg) translateZ(${-30 * S}px);
+            background: linear-gradient(160deg, #c8c8c0, #b8b8b0);
             border: 1px solid #aaa;
             clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
             overflow: hidden;
         `;
-        // Posicionar atrás: rotateX(180deg) + translateZ
-        // A face de trás é a imagem espelhada da frente
-        // A base do triângulo tem profundidade = altura * tan(30°)... 
-        // Simplificando: a face de trás está a profundidade atrás
         wrapper.appendChild(faceBack);
         this.faceBack = faceBack;
 
-        // ── ABA BASE (parte inferior da base triangular) ──
-        const base = document.createElement('div');
-        base.className = 'tri-base';
-        base.style.cssText = `
+        // ── BASE (retângulo inferior que dá profundidade) ──
+        const baseEl = document.createElement('div');
+        baseEl.className = 'tri-base';
+        baseEl.style.cssText = `
             position: absolute;
-            width: ${baseW * S * 0.25}px;
-            height: ${30 * S}px;
-            transform-origin: top center;
-            background: #d0d0c8;
+            width: ${baseW * S * 0.92}px;
+            height: ${35 * S}px;
+            left: ${baseW * S * 0.04}px;
+            top: ${faceH * S - 2}px;
+            background: linear-gradient(180deg, #d0d0c8, #c0c0b8);
             border: 1px solid #bbb;
             border-top: none;
-            left: ${baseW * S * 0.375}px;
-            top: ${faceH * S}px;
-            border-radius: 0 0 3px 3px;
+            border-radius: 0 0 4px 4px;
+            z-index: -1;
         `;
-        wrapper.appendChild(base);
-        this.base = base;
+        wrapper.appendChild(baseEl);
+        this.baseEl = baseEl;
 
-        // ── FOLHA PENDURADA (mês atual) ──
+        // ── FOLHA PENDURADA ──
         const sheetContainer = document.createElement('div');
         sheetContainer.className = 'tri-sheet';
         sheetContainer.id = 'tri-sheet';
+        const sheetW = folhaW * S * 0.94;
+        const sheetH = folhaH * S;
+        const sheetX = (baseW * S - sheetW) / 2;
+        const sheetY = 6 * S; // próximo do topo (apex do triângulo)
         sheetContainer.style.cssText = `
             position: absolute;
-            width: ${baseW * S * 0.88}px;
-            height: ${folhaH * S}px;
-            left: ${baseW * S * 0.06}px;
-            top: ${15 * S}px;
-            background: #f0f0f0;
+            width: ${sheetW}px;
+            height: ${sheetH}px;
+            left: ${sheetX}px;
+            top: ${sheetY}px;
+            background: #f5f5f0;
             border: 1px solid #ccc;
             border-radius: 2px;
-            box-shadow: 2px 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
             overflow: hidden;
             z-index: 10;
         `;
-        // Imagem da folha
         this.sheetImg = document.createElement('img');
         this.sheetImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
         if (this.carregado && this.imagens[0]) this.sheetImg.src = this.imagens[0].src;
@@ -169,27 +169,27 @@ class ViewerTriangle {
         faceFront.appendChild(sheetContainer);
         this.sheetContainer = sheetContainer;
 
-        // ── ARGOLAS ──
+        // ── FUROS DAS ARGOLAS ──
         const argolas = this.config.folha.argolas;
         if (argolas) {
-            const qtd = argolas.quantidade || 3;
-            const esp = (baseW * S * 0.6) / (qtd - 1);
-            const inicio = baseW * S * 0.2;
+            const qtd = argolas.quantidade;
+            const esp = argolas.espacamento;
+            const inicio = argolas.inicio;
             for (let i = 0; i < qtd; i++) {
+                const cx = (inicio + i * esp) * S;
+                const cy = argolas.margemTopo * S;
                 const ring = document.createElement('div');
-                ring.className = 'tri-ring';
-                const x = inicio + i * esp;
                 ring.style.cssText = `
                     position: absolute;
-                    width: ${argolas.diametro * S * 1.2}px;
-                    height: ${argolas.diametro * S * 1.2}px;
-                    left: ${x - argolas.diametro * S * 0.6}px;
-                    top: ${-argolas.diametro * S * 0.8}px;
+                    width: ${argolas.diametro * 1.6}px;
+                    height: ${argolas.diametro * 1.6}px;
+                    left: ${cx - argolas.diametro * 0.8}px;
+                    top: ${cy - argolas.diametro * 0.8}px;
                     border: 2px solid #999;
                     border-radius: 50%;
-                    background: none;
+                    background: rgba(255,255,255,0.3);
                     z-index: 20;
-                    box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+                    box-shadow: inset 0 0 4px rgba(0,0,0,0.25);
                 `;
                 faceFront.appendChild(ring);
             }
@@ -197,45 +197,46 @@ class ViewerTriangle {
 
         // ── SOMBRA ──
         const shadow = document.createElement('div');
-        shadow.className = 'tri-shadow';
         shadow.style.cssText = `
             position: absolute;
-            width: ${baseW * S * 0.6}px;
-            height: ${40 * S}px;
-            left: ${baseW * S * 0.2}px;
-            top: ${(faceH + 25) * S}px;
-            background: rgba(0,0,0,0.15);
+            width: ${baseW * S * 0.5}px;
+            height: ${50 * S}px;
+            left: ${baseW * S * 0.25}px;
+            top: ${(faceH + 20) * S}px;
+            background: rgba(0,0,0,0.12);
             border-radius: 50%;
-            filter: blur(15px);
-            z-index: -1;
+            filter: blur(20px);
+            z-index: -2;
         `;
         wrapper.appendChild(shadow);
 
         // ── ELEMENTOS DESIGNER ──
         this.elementosDesigner = [];
-
-        // Labels dos lados
         const labelFrente = document.createElement('div');
-        labelFrente.textContent = 'FACE FRENTE';
+        labelFrente.textContent = 'FACE FRENTE 215×127.5';
         labelFrente.style.cssText = `
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            font-size: 14px; font-weight: bold; color: #ff0000; z-index: 30;
-            display: none; pointer-events: none;
+            position: absolute; left: 50%; top: 60%;
+            transform: translate(-50%, -50%);
+            font-size: 13px; font-weight: bold; color: #ff0000;
+            z-index: 30; display: none; pointer-events: none;
+            background: rgba(255,255,255,0.7); padding: 2px 8px;
+            border-radius: 3px;
         `;
         wrapper.appendChild(labelFrente);
         this.elementosDesigner.push(labelFrente);
-        this.labelFrente = labelFrente;
 
         const labelVerso = document.createElement('div');
-        labelVerso.textContent = 'FACE VERSO';
+        labelVerso.textContent = 'FACE VERSO 215×127.5';
         labelVerso.style.cssText = `
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            font-size: 14px; font-weight: bold; color: #ff6600; z-index: 30;
-            display: none; pointer-events: none;
+            position: absolute; left: 50%; top: 20%;
+            transform: translate(-50%, -50%);
+            font-size: 13px; font-weight: bold; color: #ff6600;
+            z-index: 30; display: none; pointer-events: none;
+            background: rgba(255,255,255,0.7); padding: 2px 8px;
+            border-radius: 3px;
         `;
         wrapper.appendChild(labelVerso);
         this.elementosDesigner.push(labelVerso);
-        this.labelVerso = labelVerso;
     }
 
     configurarEventos() {
