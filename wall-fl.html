@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Parede FL (330×480) - Mockup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .formato-header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(26, 26, 26, 0.9);
+            padding: 8px 16px; z-index: 10000;
+            display: flex; align-items: center; gap: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .formato-header a {
+            color: #aaa; text-decoration: none; font-size: 14px;
+        }
+        .formato-header a:hover { color: #fff; }
+        .formato-header span {
+            color: #fff; font-size: 14px; font-weight: 600;
+        }
+        #app-container { margin-top: 36px; height: calc(100vh - 36px); }
+    </style>
+</head>
+<body>
+    <div class="formato-header">
+        <a href="index.html">← Todos os formatos</a>
+        <span>Calendário Parede FL (330×480mm) — página inteira, argolas no topo</span>
+    </div>
+
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">A carregar...</div>
+    </div>
+
+    <div id="app-container">
+        <div id="viewer-container"></div>
+        <div id="ui-container"></div>
+    </div>
+
+    <script src="js/configs/wall-fl.js"></script>
+    <script src="js/macete.js"></script>
+    <script src="js/viewer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

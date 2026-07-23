@@ -3,24 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário de Parede - Mockup Interativo</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Calendários FL & FI - Mockups Interativos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .card {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 28px;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid #444;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #0066cc;
+            box-shadow: 0 8px 30px rgba(0, 102, 204, 0.3);
+        }
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .card .dims {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+        .card .desc {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+        .card .tag {
+            display: inline-block;
+            background: #0066cc;
+            color: #fff;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .card .tag.verde { background: #00aa66; }
+        .card .tag.laranja { background: #cc6600; }
+        .card .tag.roxo { background: #8844aa; }
+        .separator {
+            width: 100%;
+            text-align: center;
+            margin: 20px 0 10px;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">A carregar...</div>
+    <h1>📅 Mockups Interativos 2027</h1>
+    <p class="subtitle">Flora Lusitana & Flora Iberia — Todos os formatos</p>
+
+    <div class="grid">
+        <!-- Wall Calendar (existing) -->
+        <a href="wall.html" class="card">
+            <h2>Calendário de Parede</h2>
+            <div class="dims">335 × 835 mm · 3 zonas</div>
+            <div class="desc">Calendário de parede vertical com 3 macetes. Formato original.</div>
+            <span class="tag">FL & FI</span>
+        </a>
+
+        <!-- FL Wall Calendar (new) -->
+        <a href="wall-fl.html" class="card">
+            <h2>Calendário Parede FL</h2>
+            <div class="dims">330 × 480 mm · página inteira</div>
+            <div class="desc">Página inteira por mês. Argolas no topo. Efeito flip.</div>
+            <span class="tag verde">FL</span>
+        </a>
+
+        <!-- Planner -->
+        <a href="planner.html" class="card">
+            <h2>Planner de Mesa</h2>
+            <div class="dims">480 × 330 mm · paisagem</div>
+            <div class="desc">Planner mensal de mesa. Página inteira, argolas no topo.</div>
+            <span class="tag laranja">FL & FI</span>
+        </a>
+
+        <!-- Triangular -->
+        <a href="triangle.html" class="card">
+            <h2>Calendário Triangular</h2>
+            <div class="dims">Base 215×315 · Folhas 215×105 mm</div>
+            <div class="desc">Base triangular com 13 folhas (capa + 12 meses). Frente e verso.</div>
+            <span class="tag roxo">FL & FI</span>
+        </a>
+
+        <!-- Flyer -->
+        <a href="flyer.html" class="card">
+            <h2>Flyer Tríptico A4</h2>
+            <div class="dims">210 × 297 mm · 6 painéis</div>
+            <div class="desc">Flyer vertical A4. 3 painéis frente + 3 verso. Vincos marcados.</div>
+            <span class="tag">FL & FI</span>
+        </a>
     </div>
 
-    <div id="app-container">
-        <div id="viewer-container"></div>
-        <div id="ui-container"></div>
-    </div>
-
-    <script src="js/config.js"></script>
-    <script src="js/macete.js"></script>
-    <script src="js/viewer.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/app.js"></script>
+    <p class="subtitle" style="margin-top: 40px;">
+        Abre cada formato para ver o mockup interativo.<br>
+        Usa <strong>Modo Designer</strong> (tecla D) para ver limites, vincos e grelha.
+    </p>
 </body>
 </html>

@@ -45,7 +45,7 @@ class CalendarApp {
     }
 
     async criarMacetes(assets) {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < this.config.zonas.length; i++) {
             const macete = new Macete(i + 1, this.config.zonas[i], this.config);
             await macete.carregarImagens(assets.macetes);
             this.macetes.push(macete);

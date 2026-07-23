@@ -354,3 +354,21 @@ body {
     font-size: 16px;
     font-weight: 500;
 }
+
+.btn-parallax {
+    background: #555; color: #fff; border: none;
+    padding: 10px 16px; border-radius: 4px; cursor: pointer;
+    font-size: 14px; transition: background 0.2s;
+}
+.btn-parallax:hover { background: #666; }
+.btn-parallax.ativo { background: #0066cc; }
+.btn-parallax.ativo:hover { background: #0077ee; }
+
+.vinco-designer {
+    pointer-events: none;
+}
+
+.vinco-label {
+    pointer-events: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
