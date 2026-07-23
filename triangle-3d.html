@@ -3,165 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário Triangular 3D - Mockup</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Calendário Triangular 3D</title>
     <style>
-        .formato-header {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(26, 26, 26, 0.9);
-            padding: 8px 16px; z-index: 10000;
-            display: flex; align-items: center; gap: 16px;
-            backdrop-filter: blur(8px);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #f0ebe3; }
+        #canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        #loading {
+            position: fixed; inset: 0; background: #f0ebe3;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 20px; z-index: 100;
+            transition: opacity 0.6s;
         }
-        .formato-header a {
-            color: #aaa; text-decoration: none; font-size: 14px;
+        #loading.hidden { opacity: 0; pointer-events: none; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #d5d0c8; border-top-color: #2c5f2d; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #ui {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+            padding: 10px 18px; border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12); z-index: 10;
         }
-        .formato-header a:hover { color: #fff; }
-        .formato-header span {
-            color: #fff; font-size: 14px; font-weight: 600;
+        #ui select, #ui button {
+            font-size: 14px; padding: 7px 14px; border-radius: 8px;
+            border: 1px solid #d5d0c8; outline: none; cursor: pointer;
+            background: white; transition: all 0.2s;
         }
-        .formato-header .link-plano {
-            color: #ff8800; font-size: 13px; margin-left: auto;
+        #ui button { background: #2c5f2d; color: white; border-color: #2c5f2d; font-weight: 600; }
+        #ui button:hover { background: #1a3d1a; }
+        #ui select:hover { border-color: #2c5f2d; }
+        #hint {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            color: #888; font-size: 13px; z-index: 5;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(8px);
+            padding: 6px 14px; border-radius: 20px; transition: opacity 1s;
         }
-        #app-container { margin-top: 36px; height: calc(100vh - 36px); }
-
-        #ui-container-tri {
-            position: fixed;
-            right: 20px; top: 56px;
-            width: 240px;
-            background: rgba(51, 51, 51, 0.9);
-            border-radius: 12px;
-            padding: 16px;
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        #ui-container-tri .controle-mes {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        #ui-container-tri .nome-mes {
-            font-size: 14px; font-weight: 600; color: #fff;
-            text-align: center; flex: 1;
-        }
-        #ui-container-tri .btn-tri {
-            background: #555; color: #fff; border: none;
-            padding: 8px 12px; border-radius: 4px; cursor: pointer;
-            font-size: 14px; min-width: 36px;
-        }
-        #ui-container-tri .btn-tri:hover { background: #666; }
-        #ui-container-tri .btn-tri.ativo { background: #0066cc; }
-        #ui-container-tri .btn-group {
-            display: flex; gap: 6px; flex-wrap: wrap;
-        }
-        #ui-container-tri .btn-group .btn-tri { flex: 1; font-size: 12px; }
-        #ui-container-tri label {
-            font-size: 12px; color: #ccc; font-weight: 500;
-        }
-        #ui-container-tri select {
-            width: 100%; padding: 6px 8px; border-radius: 4px;
-            border: 1px solid #555; background: #555; color: #fff;
-            font-size: 13px; cursor: pointer;
-        }
-        #ui-container-tri .zoom-info {
-            font-size: 12px; color: #aaa; text-align: center;
-        }
-        .tri-dica {
-            position: fixed;
-            bottom: 20px; left: 50%; transform: translateX(-50%);
-            color: #888; font-size: 13px; z-index: 999;
-            background: rgba(0,0,0,0.6);
-            padding: 6px 16px; border-radius: 20px;
-            pointer-events: none;
+        #hint.fade { opacity: 0; }
+        @media (max-width: 600px) {
+            #ui { flex-wrap: wrap; justify-content: center; bottom: 20px; padding: 8px 12px; }
+            #ui select, #ui button { font-size: 12px; padding: 5px 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="formato-header">
-        <a href="index.html">← Todos os formatos</a>
-        <span>Calendário Triangular — vista 3D montada</span>
-        <a href="triangle.html" class="link-plano">Ver plano aberto →</a>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div style="color: #666; font-size: 15px;">A carregar cena 3D...</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div id="hint">Arrasta para rodar · Scroll para zoom</div>
+    <div id="ui">
+        <button id="prev-month" title="Mês anterior">◀</button>
+        <select id="month-select"></select>
+        <button id="next-month" title="Mês seguinte">▶</button>
+        <button id="reset-view">Reset</button>
     </div>
 
-    <div id="app-container">
-        <div id="viewer-container"></div>
-    </div>
-
-    <div id="ui-container-tri">
-        <div class="controle-mes">
-            <button class="btn-tri" id="btn-mes-ant">◀</button>
-            <span class="nome-mes" id="nome-mes">Janeiro</span>
-            <button class="btn-tri" id="btn-mes-prox">▶</button>
-        </div>
-        <select id="select-mes">
-            <option value="0">Janeiro</option>
-            <option value="1">Fevereiro</option>
-            <option value="2">Março</option>
-            <option value="3">Abril</option>
-            <option value="4">Maio</option>
-            <option value="5">Junho</option>
-            <option value="6">Julho</option>
-            <option value="7">Agosto</option>
-            <option value="8">Setembro</option>
-            <option value="9">Outubro</option>
-            <option value="10">Novembro</option>
-            <option value="11">Dezembro</option>
-        </select>
-        <div class="btn-group">
-            <button class="btn-tri" id="btn-reset">Reset Vista</button>
-            <button class="btn-tri" id="btn-designer">Designer</button>
-        </div>
-        <div class="zoom-info">Roda do rato: zoom · Arrastar: rodar</div>
-    </div>
-
-    <div class="tri-dica">🖱 Arrasta para rodar · Scroll para zoom</div>
-
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="js/configs/triangle.js"></script>
-    <script src="js/viewer-triangle.js"></script>
+    <script src="js/viewer-babylon.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const viewer = new ViewerTriangle(CONFIG);
-            await viewer.inicializar('viewer-container');
+        const canvas = document.getElementById('canvas');
+        const loading = document.getElementById('loading');
+        const monthSelect = document.getElementById('month-select');
+        const hint = document.getElementById('hint');
 
-            function updateUI() {
-                document.getElementById('nome-mes').textContent = viewer.getNomeMes();
-                document.getElementById('select-mes').value = viewer.mesAtual;
-            }
+        TRIANGLE_CONFIG.meses.forEach((m, i) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = m;
+            monthSelect.appendChild(opt);
+        });
+        monthSelect.value = new Date().getMonth();
 
-            viewer.onChange = updateUI;
+        const viewer = new ViewerBabylon(canvas, TRIANGLE_CONFIG);
 
-            document.getElementById('btn-mes-ant').onclick = () => {
-                viewer.mesAnterior();
-                updateUI();
-            };
-            document.getElementById('btn-mes-prox').onclick = () => {
-                viewer.proximoMes();
-                updateUI();
-            };
-            document.getElementById('select-mes').onchange = (e) => {
-                viewer.setMes(parseInt(e.target.value));
-                updateUI();
-            };
-            document.getElementById('btn-reset').onclick = () => viewer.reset();
-            document.getElementById('btn-designer').onclick = function() {
-                const ativo = viewer.alternarModoDesigner();
-                this.textContent = ativo ? 'Designer: ON' : 'Designer';
-                this.classList.toggle('ativo', ativo);
-            };
+        setTimeout(() => loading.classList.add('hidden'), 300);
+        setTimeout(() => hint.classList.add('fade'), 4000);
 
-            // Atalhos de teclado
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'd' || e.key === 'D') {
-                    document.getElementById('btn-designer').click();
-                }
-                if (e.key === 'r' || e.key === 'R') {
-                    viewer.reset();
-                }
-            });
+        const updateSelect = () => { monthSelect.value = viewer.monthIndex; };
+
+        document.getElementById('prev-month').addEventListener('click', () => {
+            viewer.flipPage(-1);
+            setTimeout(updateSelect, 600);
+        });
+        document.getElementById('next-month').addEventListener('click', () => {
+            viewer.flipPage(1);
+            setTimeout(updateSelect, 600);
+        });
+
+        monthSelect.addEventListener('change', () => {
+            const val = parseInt(monthSelect.value);
+            const diff = val - viewer.monthIndex;
+            if (diff > 6) viewer.flipPage(-1);
+            else if (diff < -6) viewer.flipPage(1);
+            else if (diff > 0) viewer.flipPage(1);
+            else if (diff < 0) viewer.flipPage(-1);
+        });
+
+        document.getElementById('reset-view').addEventListener('click', () => {
+            viewer.camera.alpha = -0.6;
+            viewer.camera.beta = 1.1;
+            viewer.camera.radius = 12;
+            viewer.camera.target = new BABYLON.Vector3(0, 1.5, 0);
         });
     </script>
 </body>
