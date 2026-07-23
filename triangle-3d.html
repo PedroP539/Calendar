@@ -50,7 +50,7 @@
         <div class="spinner"></div>
         <div style="color: #666; font-size: 15px;">A carregar cena 3D...</div>
     </div>
-    <canvas id="canvas"></canvas>
+    <div id="canvas"></div>
     <div id="hint">Arrasta para rodar · Scroll para zoom</div>
     <div id="ui">
         <button id="prev-month" title="Mês anterior">◀</button>
@@ -59,14 +59,14 @@
         <button id="reset-view">Reset</button>
     </div>
 
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="js/configs/triangle.js"></script>
-    <script src="js/viewer-babylon.js"></script>
+    <script src="js/viewer-css3d.js"></script>
     <script>
         const canvas = document.getElementById('canvas');
         const loading = document.getElementById('loading');
         const monthSelect = document.getElementById('month-select');
         const hint = document.getElementById('hint');
+        let viewer;
 
         TRIANGLE_CONFIG.meses.forEach((m, i) => {
             const opt = document.createElement('option');
@@ -76,23 +76,24 @@
         });
         monthSelect.value = new Date().getMonth();
 
-        const viewer = new ViewerBabylon(canvas, TRIANGLE_CONFIG);
+        // Small delay to ensure layout is ready
+        setTimeout(() => {
+            viewer = new ViewerCSS3D(canvas, TRIANGLE_CONFIG);
+            loading.classList.add('hidden');
+            hint.classList.add('fade');
+        }, 100);
 
-        setTimeout(() => loading.classList.add('hidden'), 300);
-        setTimeout(() => hint.classList.add('fade'), 4000);
-
-        const updateSelect = () => { monthSelect.value = viewer.monthIndex; };
+        const updateSelect = () => { if (viewer) monthSelect.value = viewer.monthIndex; };
 
         document.getElementById('prev-month').addEventListener('click', () => {
-            viewer.flipPage(-1);
-            setTimeout(updateSelect, 600);
+            if (viewer) { viewer.flipPage(-1); setTimeout(updateSelect, 700); }
         });
         document.getElementById('next-month').addEventListener('click', () => {
-            viewer.flipPage(1);
-            setTimeout(updateSelect, 600);
+            if (viewer) { viewer.flipPage(1); setTimeout(updateSelect, 700); }
         });
 
         monthSelect.addEventListener('change', () => {
+            if (!viewer) return;
             const val = parseInt(monthSelect.value);
             const diff = val - viewer.monthIndex;
             if (diff > 6) viewer.flipPage(-1);
@@ -102,10 +103,7 @@
         });
 
         document.getElementById('reset-view').addEventListener('click', () => {
-            viewer.camera.alpha = -0.6;
-            viewer.camera.beta = 1.1;
-            viewer.camera.radius = 12;
-            viewer.camera.target = new BABYLON.Vector3(0, 1.5, 0);
+            if (viewer) { viewer._rotX = -10; viewer._rotY = -20; viewer._render(); }
         });
     </script>
 </body>
