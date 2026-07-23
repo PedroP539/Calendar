@@ -264,10 +264,10 @@ class ViewerBabylon {
 
       const mesh = this._makeQuad('p_' + i, [
         -hw + d, -sh, zOff,
-        -hw + d, 0, 0,
+         hw - d, -sh, zOff,
          hw - d, 0, 0,
-         hw - d, -sh, zOff
-      ], [1, 0, 1, 1, 0, 1, 0, 0], mat);
+        -hw + d, 0, 0
+      ], null, mat);
 
       mesh.parent = pivot;
       this._addCaster(mesh);
@@ -311,15 +311,15 @@ class ViewerBabylon {
       const vd = new BABYLON.VertexData();
       vd.positions = [
         -hw + d, -sh, zOff,
-        -hw + d, 0, 0,
+         hw - d, -sh, zOff,
          hw - d, 0, 0,
-         hw - d, -sh, zOff
+        -hw + d, 0, 0
       ];
       vd.indices = [0, 1, 2, 0, 2, 3];
       const normals = [];
       BABYLON.VertexData.ComputeNormals(vd.positions, vd.indices, normals);
       vd.normals = normals;
-      vd.uvs = [1, 0, 1, 1, 0, 1, 0, 0];
+      vd.uvs = [0, 0, 1, 0, 1, 1, 0, 1];
       vd.applyToMesh(mesh);
 
       mesh.material = i === 0 ? this._frontMat : this._backMat;
@@ -385,7 +385,6 @@ class ViewerBabylon {
 
     const currMesh = curr.getChildMeshes()[0];
     const nextMesh = next.getChildMeshes()[0];
-    // Make both sides visible during flip
     if (currMesh) currMesh.sideOrientation = BABYLON.Mesh.DOUBLESIDE;
     if (nextMesh) {
       nextMesh.sideOrientation = BABYLON.Mesh.DOUBLESIDE;
@@ -394,21 +393,22 @@ class ViewerBabylon {
     }
 
     const start = performance.now();
-    const dur = 600;
+    const dur = 700;
 
     const anim = () => {
       const t = Math.min((performance.now() - start) / dur, 1);
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Smooth ease-in-out
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-      // Curr flips full 180° from front to back
+      // Curr flips full 180° — visible entire time (DOUBLESIDE)
       curr.rotation.x = -e * Math.PI;
-      curr.position.y = curr._origY + Math.sin(e * Math.PI) * 0.05;
+      curr.position.y = curr._origY + Math.sin(e * Math.PI) * 0.04;
 
-      // Next starts appearing from behind at halfway
+      // Next page waits behind, then starts appearing in second half
       if (t >= 0.5) {
         const n = (e - 0.5) * 2;
         next.rotation.x = -Math.PI * (1 - n);
-        next.position.y = next._origY + Math.sin(n * Math.PI) * 0.05;
+        next.position.y = next._origY + Math.sin(n * Math.PI) * 0.04;
       }
 
       if (t < 1) requestAnimationFrame(anim);
@@ -420,7 +420,6 @@ class ViewerBabylon {
         if (currMesh) currMesh.sideOrientation = BABYLON.Mesh.DEFAULTSIDE;
         if (nextMesh) nextMesh.sideOrientation = BABYLON.Mesh.DEFAULTSIDE;
 
-        // Rotate stack: front goes to back
         this._pages.push(this._pages.shift());
         this._restackPages();
         for (const p of this._pages) p.setEnabled(true);
