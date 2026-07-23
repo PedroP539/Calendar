@@ -267,7 +267,7 @@ class ViewerBabylon {
         -hw + d, 0, 0,
          hw - d, 0, 0,
          hw - d, -sh, zOff
-      ], [0, 0, 0, 1, 1, 1, 1, 0], mat);
+      ], [1, 0, 1, 1, 0, 1, 0, 0], mat);
 
       mesh.parent = pivot;
       this._addCaster(mesh);
@@ -319,7 +319,7 @@ class ViewerBabylon {
       const normals = [];
       BABYLON.VertexData.ComputeNormals(vd.positions, vd.indices, normals);
       vd.normals = normals;
-      vd.uvs = [0, 0, 0, 1, 1, 1, 1, 0];
+      vd.uvs = [1, 0, 1, 1, 0, 1, 0, 0];
       vd.applyToMesh(mesh);
 
       mesh.material = i === 0 ? this._frontMat : this._backMat;
